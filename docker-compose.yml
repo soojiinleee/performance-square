@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: app
+    environment:
+      - DJANGO_ENV=local
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - network
+
+  db:
+    image: postgres:15-alpine
+    container_name: db
+    environment:
+      POSTGRES_DB: django
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: django
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - network
+
+volumes:
+  db-data:
+
+networks:
+  django_network:
+    name : network
