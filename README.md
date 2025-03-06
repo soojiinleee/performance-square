@@ -6,6 +6,7 @@
 - 기획 및 개발 인원 : 1명(본인)
 
 ## 테이블 모델링
+<img width="809" alt="스크린샷 2025-03-06 오후 6 31 16" src="https://github.com/user-attachments/assets/ca4e287f-662f-46c9-96ac-b3d6ff1cba3a" />
 
 ## 디렉토리 구조
 ```
