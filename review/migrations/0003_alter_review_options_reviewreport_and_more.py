@@ -9,34 +9,82 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('review', '0002_alter_review_options'),
+        ("review", "0002_alter_review_options"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='review',
-            options={'verbose_name': '리뷰', 'verbose_name_plural': '리뷰'},
+            name="review",
+            options={"verbose_name": "리뷰", "verbose_name_plural": "리뷰"},
         ),
         migrations.CreateModel(
-            name='ReviewReport',
+            name="ReviewReport",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
-                ('reason', models.CharField(choices=[('spam', '스팸, 도배글'), ('advertisement', '홍보, 영리목적'), ('abusive', '욕설, 비방글'), ('other', '기타')], default='spam', max_length=20)),
-                ('other_reason', models.CharField(blank=True, max_length=500, null=True)),
-                ('review', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='review.review')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reported_reviews', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
+                (
+                    "reason",
+                    models.CharField(
+                        choices=[
+                            ("spam", "스팸, 도배글"),
+                            ("advertisement", "홍보, 영리목적"),
+                            ("abusive", "욕설, 비방글"),
+                            ("other", "기타"),
+                        ],
+                        default="spam",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "other_reason",
+                    models.CharField(blank=True, max_length=500, null=True),
+                ),
+                (
+                    "review",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reports",
+                        to="review.review",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reported_reviews",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '리뷰 신고 현황',
-                'verbose_name_plural': '리뷰 신고 현황',
-                'db_table': 'review_report',
+                "verbose_name": "리뷰 신고 현황",
+                "verbose_name_plural": "리뷰 신고 현황",
+                "db_table": "review_report",
             },
         ),
         migrations.AddField(
-            model_name='review',
-            name='reported_user',
-            field=models.ManyToManyField(blank=True, through='review.ReviewReport', to=settings.AUTH_USER_MODEL, verbose_name='리뷰 신고한 유저'),
+            model_name="review",
+            name="reported_user",
+            field=models.ManyToManyField(
+                blank=True,
+                through="review.ReviewReport",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="리뷰 신고한 유저",
+            ),
         ),
     ]

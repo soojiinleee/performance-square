@@ -5,19 +5,30 @@ from django.shortcuts import get_object_or_404
 from core.paginations import StandardResultsSetPagination
 from .models import Performance
 from .serializers import PerformanceSerializer
+from .schemas import (
+    PERFORMANCE_LIST_SCHEMA,
+    PERFORMANCE_RETRIEVE_SCHEMA,
+    PERFORMANCE_LIKE_CREATE_SCHEMA,
+    LIKED_PERFORMANCE_LIST_SCHEMA,
+)
 
 
-class PerformanceViewSet(mixins.ListModelMixin,
-                         mixins.RetrieveModelMixin,
-                         viewsets.GenericViewSet):
+class PerformanceViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """공연 리스트 및 상세 조회 API"""
+
     serializer_class = PerformanceSerializer
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        queryset = Performance.objects.select_related('genre').prefetch_related('liked_users').all()
-        genre_id = self.request.query_params.get('genre_id', None)
-        status = self.request.query_params.get('status', None)
+        queryset = (
+            Performance.objects.select_related("genre")
+            .prefetch_related("liked_users")
+            .all()
+        )
+        genre_id = self.request.query_params.get("genre_id", None)
+        status = self.request.query_params.get("status", None)
 
         if genre_id:
             queryset = queryset.filter(genre__id=genre_id)
@@ -25,30 +36,48 @@ class PerformanceViewSet(mixins.ListModelMixin,
             queryset = queryset.filter(status=status)
         return queryset
 
+    @PERFORMANCE_LIST_SCHEMA
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @PERFORMANCE_RETRIEVE_SCHEMA
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
 
 class PerformanceLikeView(generics.ListCreateAPIView):
+    """공연 좋아요 추가 및 조회"""
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @LIKED_PERFORMANCE_LIST_SCHEMA
     def get(self, request, *args, **kwargs):
         """마이페이지 - 좋아요한 공연 목록"""
-        queryset = Performance.objects.prefetch_related('liked_users').filter(liked_users__user_id=request.user.id)
-        sort_by = kwargs.get('sort_by', 'like_created')
+        queryset = Performance.objects.prefetch_related("liked_users").filter(
+            liked_users__user_id=request.user.id
+        )
+        sort_by = kwargs.get("sort_by", "like_created")
 
-        if sort_by == 'name':
-            queryset = queryset.order_by('name')
+        if sort_by == "name":
+            queryset = queryset.order_by("name")
         else:
-            queryset = queryset.order_by('-liked_users__created_at')  # 기본값은 liked_users의 created_at 기준으로 정렬
+            queryset = queryset.order_by(
+                "-liked_users__created_at"
+            )  # 기본값은 liked_users의 created_at 기준으로 정렬
 
         serializer = PerformanceSerializer(queryset, many=True, read_only=True)
         return Response(serializer.data)
 
+    @PERFORMANCE_LIKE_CREATE_SCHEMA
     def post(self, request, *args, **kwargs):
         """공연 좋아요/좋아요 취소 API"""
 
-        performance_id = request.GET.get('performance_id', None)
+        performance_id = request.GET.get("performance_id", None)
         if not performance_id:
-            return Response({"detail": "performance_id가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "performance_id가 필요합니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         performance = get_object_or_404(Performance, id=performance_id)
         like, created = performance.liked_users.get_or_create(user=request.user)
@@ -56,8 +85,7 @@ class PerformanceLikeView(generics.ListCreateAPIView):
 
         if not created:
             like.delete()
-            status_code=status.HTTP_200_OK
+            status_code = status.HTTP_200_OK
 
-        serializer = PerformanceSerializer(performance, context={'request': request})
+        serializer = PerformanceSerializer(performance, context={"request": request})
         return Response(serializer.data, status=status_code)
-

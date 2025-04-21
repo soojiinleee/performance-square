@@ -58,7 +58,7 @@ class TestPerformanceListFilter:
     # @pytest.mark.django_db
     def test_filter_by_genre(self, api_client, performance_data, genre_data):
         """장르별 공연 목록 필터링 테스트"""
-        response = api_client.get(self.url, {"genre_id": genre_data['musical'].id})
+        response = api_client.get(self.url, {"genre_id": genre_data["musical"].id})
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) == 3
@@ -67,7 +67,7 @@ class TestPerformanceListFilter:
     # @pytest.mark.django_db
     def test_filter_by_status(self, api_client, performance_data):
         """상태별 공연 목록 필터링 테스트"""
-        response = api_client.get(self.url, {"status":"upcoming"})
+        response = api_client.get(self.url, {"status": "upcoming"})
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) == 2
@@ -80,14 +80,13 @@ class TestPerformanceListFilter:
     # @pytest.mark.django_db
     def test_retrieve_performance(self, api_client, performance_data):
         """존재하는 공연 상세 조회 테스트"""
-        url = reverse("performance-detail", args=[performance_data['performance1'].id])
+        url = reverse("performance-detail", args=[performance_data["performance1"].id])
         response = api_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["name"] == "오페라의 유령"
         assert response.json()["price"] == 150000
         assert response.json()["genre"]["name"] == "뮤지컬"
-
 
     # @pytest.mark.django_db
     def test_retrieve_nonexistent_performance(self, api_client):
@@ -104,22 +103,24 @@ class TestPerformanceLike:
     def test_create_performance_like(self, api_client, user_data, performance_data):
         """공연 좋아요 등록 테스트"""
         # given : 유저 토큰 세팅(db 저장된 user_data 활용)
-        user = User.objects.get(username='user1')
+        user = User.objects.get(username="user1")
         api_client.force_authenticate(user=user)
 
         # when : 공연 좋아요 API 호출
         url = reverse("performance-like")
-        response = api_client.post(f"{url}?performance_id={performance_data['performance1'].id}")
+        response = api_client.post(
+            f"{url}?performance_id={performance_data['performance1'].id}"
+        )
 
         # then : 좋아요가 성공적으로 생성되었는지 확인
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.json()["name"] == performance_data['performance1'].name
-        assert response.json()["is_liked"] == True
+        assert response.json()["name"] == performance_data["performance1"].name
+        assert response.json()["is_liked"] is True
 
     def test_cancel_performance_like(self, api_client, user_data, performance_data):
         """공연 좋아요 취소 테스트"""
         # given : 유저 토큰 세팅(db 저장된 user_data 활용)
-        user = User.objects.get(username='user1')
+        user = User.objects.get(username="user1")
         api_client.force_authenticate(user=user)
 
         # when : 공연 좋아요 API 호출 (좋아요 생성)
@@ -127,53 +128,59 @@ class TestPerformanceLike:
         api_client.post(f"{url}?performance_id={performance_data['performance1'].id}")
 
         # 공연 좋아요 취소 API 호출 (같은 공연에 대해 취소)
-        response = api_client.post(f"{url}?performance_id={performance_data['performance1'].id}")
+        response = api_client.post(
+            f"{url}?performance_id={performance_data['performance1'].id}"
+        )
 
         # 좋아요 취소 되었는지 확인
         assert response.status_code == status.HTTP_200_OK
-        assert response.json()["name"] == performance_data['performance1'].name
-        assert response.json()["is_liked"] == False
+        assert response.json()["name"] == performance_data["performance1"].name
+        assert response.json()["is_liked"] is False
 
-    def test_performance_like_count_with_anonymouse(self, api_client, genre_data, performance_likes_data):
+    def test_performance_like_count_with_anonymouse(
+        self, api_client, genre_data, performance_likes_data
+    ):
         """공연의 좋아요 조회 : 로그인 안 한 경우"""
 
         # when : 공연 목록 조회 API 호출
         url = reverse("performance-list")
-        response = api_client.get(url, {"genre_id": genre_data['musical'].id})
+        response = api_client.get(url, {"genre_id": genre_data["musical"].id})
 
         # then : 공연 좋아요 수 확인
         assert response.status_code == status.HTTP_200_OK
         assert response.json()[0]["name"] == "오페라의 유령"
         assert response.json()[0]["like_count"] == 2
-        assert response.json()[0]["is_liked"] == False
+        assert response.json()[0]["is_liked"] is False
         assert response.json()[1]["name"] == "지킬앤하이드"
         assert response.json()[1]["like_count"] == 0
-        assert response.json()[1]["is_liked"] == False
+        assert response.json()[1]["is_liked"] is False
         assert response.json()[2]["name"] == "위키드"
         assert response.json()[2]["like_count"] == 1
-        assert response.json()[2]["is_liked"] == False
+        assert response.json()[2]["is_liked"] is False
 
-    def test_performance_liked_with_auth_user(self, api_client, genre_data, performance_likes_data):
+    def test_performance_liked_with_auth_user(
+        self, api_client, genre_data, performance_likes_data
+    ):
         """공연 좋아요 조회 : 로그인 한 경우"""
         # given : 유저 토큰 세팅(db 저장된 user_data 활용)
-        user = User.objects.get(username='user1')
+        user = User.objects.get(username="user1")
         api_client.force_authenticate(user=user)
 
         # when : 공연 목록 조회 API 호출
         url = reverse("performance-list")
-        response = api_client.get(url, {"genre_id": genre_data['musical'].id})
+        response = api_client.get(url, {"genre_id": genre_data["musical"].id})
 
         # then : 공연 좋아요 수 및 본인이 좋아요 했는지 확인
         assert response.status_code == status.HTTP_200_OK
         assert response.json()[0]["name"] == "오페라의 유령"
         assert response.json()[0]["like_count"] == 2
-        assert response.json()[0]["is_liked"] == True
+        assert response.json()[0]["is_liked"] is True
         assert response.json()[1]["name"] == "지킬앤하이드"
         assert response.json()[1]["like_count"] == 0
-        assert response.json()[1]["is_liked"] == False
+        assert response.json()[1]["is_liked"] is False
         assert response.json()[2]["name"] == "위키드"
         assert response.json()[2]["like_count"] == 1
-        assert response.json()[2]["is_liked"] == True
+        assert response.json()[2]["is_liked"] is True
 
     def test_liked_performance_list_by_anonymouse(self, api_client):
         """마이페지 - 좋아요 공연 목록 : 로그인 안 한 유저"""
@@ -182,10 +189,12 @@ class TestPerformanceLike:
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_liked_performance_list_by_auth_user(self, api_client, performance_likes_data):
+    def test_liked_performance_list_by_auth_user(
+        self, api_client, performance_likes_data
+    ):
         """마이페이지 - 좋아요 공연 목록 : 로그인 유저"""
         # given : 유저 토큰 세팅(db 저장된 user_data 활용)
-        user = User.objects.get(username='user1')
+        user = User.objects.get(username="user1")
         api_client.force_authenticate(user=user)
 
         # when : 공연 목록 조회 API 호출
@@ -200,7 +209,7 @@ class TestPerformanceLike:
     def test_ordered_liked_performance_list(self, api_client, performance_likes_data):
         """마이페이지 - 좋아요 공연 목록 정렬"""
         # given : 유저 토큰 세팅(db 저장된 user_data 활용)
-        user = User.objects.get(username='user2')
+        user = User.objects.get(username="user2")
         api_client.force_authenticate(user=user)
 
         # when : 공연 목록 조회 API 호출

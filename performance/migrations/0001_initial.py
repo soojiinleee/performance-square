@@ -3,30 +3,32 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
+
 def add_initial_genre_data(apps, schema_editor):
     # Genre 모델 가져오기
-    Genre = apps.get_model('performance', 'Genre')
+    Genre = apps.get_model("performance", "Genre")
 
     # 초기 데이터 추가
     genres = [
-        (1, '연극'),
-        (2, '무용(서양/한국무용)'),
-        (3, '대중무용'),
-        (4, '서양음악(클래식)'),
-        (5, '한국음악(국악)'),
-        (6, '대중음악'),
-        (7, '복합'),
-        (8, '서커스/마술'),
-        (9, '뮤지컬'),
+        (1, "연극"),
+        (2, "무용(서양/한국무용)"),
+        (3, "대중무용"),
+        (4, "서양음악(클래식)"),
+        (5, "한국음악(국악)"),
+        (6, "대중음악"),
+        (7, "복합"),
+        (8, "서커스/마술"),
+        (9, "뮤지컬"),
     ]
 
     # 데이터를 순회하며 삽입
     for genre_id, name in genres:
         Genre.objects.create(id=genre_id, name=name)
 
+
 def remove_initial_genre_data(apps, schema_editor):
     # Genre 모델 가져오기
-    Genre = apps.get_model('performance', 'Genre')
+    Genre = apps.get_model("performance", "Genre")
     Genre.objects.all().delete()  # 모든 초기 데이터를 제거
 
 
@@ -34,39 +36,63 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Genre',
+            name="Genre",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100, verbose_name='이름')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=100, verbose_name="이름")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
             ],
             options={
-                'verbose_name': '장르',
-                'db_table': 'performance_genre',
+                "verbose_name": "장르",
+                "db_table": "performance_genre",
             },
         ),
         migrations.CreateModel(
-            name='Performance',
+            name="Performance",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('code', models.CharField(max_length=100, unique=True, verbose_name='KOPIS 공연ID')),
-                ('name', models.CharField(max_length=255, verbose_name='공연명')),
-                ('price', models.IntegerField(default=0, verbose_name='티켓 가격')),
-                ('started_at', models.DateField(verbose_name='공연 시작일')),
-                ('ended_at', models.DateField(verbose_name='공연 종료일')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
-                ('genre', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='performances', to='performance.genre', verbose_name='장르')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                (
+                    "code",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="KOPIS 공연ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, verbose_name="공연명")),
+                ("price", models.IntegerField(default=0, verbose_name="티켓 가격")),
+                ("started_at", models.DateField(verbose_name="공연 시작일")),
+                ("ended_at", models.DateField(verbose_name="공연 종료일")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
+                (
+                    "genre",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="performances",
+                        to="performance.genre",
+                        verbose_name="장르",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '공연',
-                'db_table': 'performance',
+                "verbose_name": "공연",
+                "db_table": "performance",
             },
         ),
         migrations.RunPython(add_initial_genre_data, remove_initial_genre_data),

@@ -5,13 +5,9 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DJANGO_ENV = os.getenv("DJANGO_ENV", "local")
-ENV_FILE = f"env/.env.{DJANGO_ENV}" if DJANGO_ENV != "local" else "env/.env.local"
-load_dotenv(ENV_FILE)
-
+load_dotenv(BASE_DIR / "env" / ".env")
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
@@ -32,6 +28,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'debug_toolbar',
+    'drf_spectacular',
     # apps
     'core',
     'performance',
@@ -121,8 +118,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "static"
+STATIC_URL = '/static/'
+#
+# MEDIA_ROOT = BASE_DIR / "media"
+# MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -136,7 +136,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
@@ -146,4 +147,26 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,  # 리프레시 토큰이 재사용되지 않도록 설정
     'SIGNING_KEY': os.getenv('SECRET_KEY'),
     'AUTH_HEADER_TYPES': ('Bearer',),  # JWT 인증 헤더 형식 (기본값: Bearer)
+}
+
+# swagger 설정
+SPECTACULAR_SETTINGS = {
+    'TITLE': '공연 리뷰 서비스 API Document',
+    'DESCRIPTION': 'drf-specatular 를 사용해서 만든 API 문서입니다.',
+    'SWAGGER_UI_SETTINGS': {
+        'dom_id': '#swagger-ui',
+        'layout': 'BaseLayout',
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+        'filter': True,
+    },
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    },
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+
+    'SWAGGER_UI_DIST': '//unpkg.com/swagger-ui-dist@3.38.0',
+
 }

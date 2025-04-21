@@ -11,15 +11,15 @@ RUN apt-get update \
 WORKDIR /app
 
 # Install our requirements.txt
-COPY requirements.txt /app/requirements.txt
+COPY ../requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy our code from the current folder to /app inside the container
-COPY env/ /app/.env
-COPY . .
+COPY env/.env /app/env/.env
+COPY . /app
 
-# Make port 80 available for links and/or publish
-EXPOSE 8000
+# DB 마이그레이션 실행
+COPY docker/entrypoint.sh /app/docker/entrypoint.sh
+RUN chmod +x /app/docker/entrypoint.sh
 
-# Define our command to be run when launching the container
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["/bin/sh", "/app/docker/entrypoint.sh"]

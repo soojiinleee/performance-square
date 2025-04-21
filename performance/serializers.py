@@ -5,7 +5,7 @@ from .models import Performance, Genre
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
 
 class PerformanceSerializer(serializers.ModelSerializer):
@@ -16,7 +16,17 @@ class PerformanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Performance
-        fields = ['id', 'genre', 'name', 'status', 'price', 'started_at', 'ended_at', 'like_count', 'is_liked']
+        fields = [
+            "id",
+            "genre",
+            "name",
+            "status",
+            "price",
+            "started_at",
+            "ended_at",
+            "like_count",
+            "is_liked",
+        ]
 
     def get_like_count(self, obj):
         """공연의 좋아요 수"""
@@ -24,7 +34,7 @@ class PerformanceSerializer(serializers.ModelSerializer):
 
     def get_is_liked(self, obj):
         """로그인한 유저가 공연에 좋아요 표시 했는지 확인"""
-        request = self.context.get('request')
+        request = self.context.get("request")
         if request and request.user.is_authenticated:
             return obj.liked_users.filter(user=request.user).exists()
         return False

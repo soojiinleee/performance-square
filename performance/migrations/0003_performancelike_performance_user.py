@@ -9,29 +9,61 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('performance', '0002_alter_genre_options_alter_performance_options_and_more'),
+        ("performance", "0002_alter_genre_options_alter_performance_options_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PerformanceLike',
+            name="PerformanceLike",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
-                ('performance', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='liked_users', to='performance.performance')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='liked_performances', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
+                (
+                    "performance",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="liked_users",
+                        to="performance.performance",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="liked_performances",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '공연_좋아요',
-                'verbose_name_plural': '공연_좋아요',
-                'db_table': 'performance_like',
-                'unique_together': {('user', 'performance')},
+                "verbose_name": "공연_좋아요",
+                "verbose_name_plural": "공연_좋아요",
+                "db_table": "performance_like",
+                "unique_together": {("user", "performance")},
             },
         ),
         migrations.AddField(
-            model_name='performance',
-            name='user',
-            field=models.ManyToManyField(through='performance.PerformanceLike', to=settings.AUTH_USER_MODEL, verbose_name='좋아요 클릭한 유저: m2m'),
+            model_name="performance",
+            name="user",
+            field=models.ManyToManyField(
+                through="performance.PerformanceLike",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="좋아요 클릭한 유저: m2m",
+            ),
         ),
     ]
