@@ -12,6 +12,7 @@
 .
 ├── config/
 ├── core/
+├── docker/
 ├── performance/
 ├── review/
 ├── tests/
@@ -19,6 +20,7 @@
 ```
 - **config/** : 프로젝트의 설정 파일들을 포함하는 디렉터리
 - **core/** : 프로젝트의 핵심 기능 및 공통 모듈을 포함하는 디렉터리
+- **docker/** : 환경 별 도커 컴포즈 파일 관리 모듈
 - **performance/** : 공연 관련 기능을 담당하는 애플리케이션 디렉터리
 - **review/** : 리뷰 관련 기능을 담당하는 애플리케이션 디렉터리
 - **tests/** : 테스트 코드를 포함하는 디렉터리
@@ -52,23 +54,23 @@
 - 유저 API를 제외한 모든 API 테스트 코드 작성
 
 ## 로컬 실행 환경
-- `docker-compose.yml` 파일을 이용하여 컨테이너 실행
+- `docker-compose.local.yml` 파일을 이용하여 컨테이너 실행
 
 ### 로컬 실행 방법
 1. 환경 파일 세팅
-   - `env` 디렉토링 생성 및 `.env.local` 파일 추가
+   - `env` 디렉토링 생성 및 `.env` 파일 추가
      ```bash
-      mkdir env && cd env && touch .env.local
+      mkdir env && cd env && touch .env
      ```
-   - `.env.local`에 아래 양식으로 환경 변수 추가
+   - `.env`에 아래 양식으로 환경 변수 추가
        ```text
         SECRET_KEY=''
-        DB_NAME=''
-        DB_USER=''
-        DB_PASSWORD=''
         DB_HOST=''
+        POSTGRES_DB=''
+        POSTGRES_USER=''
+        POSTGRES_PASSWORD=''
        ```
 2. 도커 실행
-    ```bash
-    docker-compose up --build
+    ```shell
+    docker compose -f docker/docker-compose.local.yml up --build -d
     ```
